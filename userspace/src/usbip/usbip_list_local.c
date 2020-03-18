@@ -67,7 +67,7 @@ add_usbdev(usbdev_list_t *usbdev_list, const char *id_hw, devno_t devno)
 		return;
 	}
 	if (!get_usbdev_info(id_hw, &vendor, &product)) {
-		err("%s: invalid hw id: %s", __FUNCTION__, id_hw);
+		dbg("%s: drop hub or multifunction interface: %s", __FUNCTION__, id_hw);
 		return;
 	}
 	usbdevs = (usbdev_t *)realloc(usbdev_list->usbdevs, sizeof(usbdev_t) * (usbdev_list->n_usbdevs + 1));
@@ -125,22 +125,8 @@ walker_list(HDEVINFO dev_info, PSP_DEVINFO_DATA pdev_info_data, devno_t devno, v
 		return 0;
 	}
 
-	/* Try to add device only if not determined as HUB or Host Controller */
-	if (!IsEqualGUID(&pdev_info_data->ClassGuid, &GUID_HUBS_HC)) {
-		dbg("Found GUID {%08lX-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX}\n",
-				pdev_info_data->ClassGuid.Data1,
-				pdev_info_data->ClassGuid.Data2,
-				pdev_info_data->ClassGuid.Data3,
-				pdev_info_data->ClassGuid.Data4[0],
-				pdev_info_data->ClassGuid.Data4[1],
-				pdev_info_data->ClassGuid.Data4[2],
-				pdev_info_data->ClassGuid.Data4[3],
-				pdev_info_data->ClassGuid.Data4[4],
-				pdev_info_data->ClassGuid.Data4[5],
-				pdev_info_data->ClassGuid.Data4[6],
-				pdev_info_data->ClassGuid.Data4[7]);
-		add_usbdev(usbdev_list, id_hw, devno);
-	}
+	add_usbdev(usbdev_list, id_hw, devno);
+
 	free(id_hw);
 	return 0;
 }
